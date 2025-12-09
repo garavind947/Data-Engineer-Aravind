@@ -1,40 +1,46 @@
 import sqlite3
-import os
+from pathlib import Path
 
-DB_PATH = os.path.join("data", "xyz_sales.db")
+BASE_DIR = Path(__file__).resolve().parent.parent
+DB_DIR = BASE_DIR / "data"
+DB_PATH = DB_DIR / "xyz_sales.db"
+
 
 def create_database():
-    os.makedirs("data", exist_ok=True)
+    DB_DIR.mkdir(parents=True, exist_ok=True)
 
-    if os.path.exists(DB_PATH):
-        os.remove(DB_PATH)
+    if DB_PATH.exists():
+        DB_PATH.unlink()
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH.as_posix())
     cur = conn.cursor()
 
     cur.execute("""
-        CREATE TABLE customers (
-            customer_id INTEGER PRIMARY KEY,
-            age INTEGER
-        );
-    """)
+                CREATE TABLE customers
+                (
+                    customer_id INTEGER PRIMARY KEY,
+                    age         INTEGER
+                );
+                """)
 
     cur.execute("""
-        CREATE TABLE orders (
-            order_id INTEGER PRIMARY KEY,
-            customer_id INTEGER,
-            FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
-        );
-    """)
+                CREATE TABLE orders
+                (
+                    order_id    INTEGER PRIMARY KEY,
+                    customer_id INTEGER,
+                    FOREIGN KEY (customer_id) REFERENCES customers (customer_id)
+                );
+                """)
 
     cur.execute("""
-        CREATE TABLE order_items (
-            order_id INTEGER,
-            item_name TEXT,
-            quantity INTEGER,
-            FOREIGN KEY (order_id) REFERENCES orders(order_id)
-        );
-    """)
+                CREATE TABLE order_items
+                (
+                    order_id  INTEGER,
+                    item_name TEXT,
+                    quantity  INTEGER,
+                    FOREIGN KEY (order_id) REFERENCES orders (order_id)
+                );
+                """)
 
     customers = [
         (1, 21),
@@ -77,7 +83,8 @@ def create_database():
 
     conn.commit()
     conn.close()
-    print("Database created successfully!")
+    print("Database created successfully! Path:", DB_PATH)
+
 
 if __name__ == "__main__":
     create_database()

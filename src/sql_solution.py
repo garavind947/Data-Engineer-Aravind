@@ -5,7 +5,6 @@ from helpers import get_connection
 def run_sql():
     conn = get_connection()
 
-    # Ensure output folder exists
     os.makedirs("output", exist_ok=True)
 
     query = """
